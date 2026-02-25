@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm install:*)",
+      "Bash(npx next build:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(git init:*)",
+      "WebFetch(domain:developer.spotify.com)",
+      "Bash(pip install:*)",
+      "Bash(curl:*)",
+      "Bash(sqlite3:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

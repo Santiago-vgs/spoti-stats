@@ -34,12 +34,7 @@ export default function TopArtistsBar({ data }: Props) {
           labelStyle={{ color: "#a1a1aa" }}
           formatter={(_, __, props) => [`#${props.payload.rank}`, props.payload.fullName]}
         />
-        <Bar
-          dataKey="score"
-          fill="#22c55e"
-          radius={[0, 6, 6, 0]}
-          animationDuration={800}
-        />
+        <Bar dataKey="score" fill="#22c55e" radius={[0, 6, 6, 0]} animationDuration={800} />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -18,10 +18,7 @@ const DECADE_COLORS: Record<string, string> = {
 };
 
 export default function DecadesPage() {
-  const { data: decades, isLoading } = useSWR<DecadeStat[]>(
-    "/decades",
-    fetcher("/decades")
-  );
+  const { data: decades, isLoading } = useSWR<DecadeStat[]>("/decades", fetcher("/decades"));
 
   if (isLoading) {
     return (
@@ -29,7 +26,10 @@ export default function DecadesPage() {
         <h1 className="text-3xl font-bold">Decadeology</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 animate-pulse h-48" />
+            <div
+              key={i}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 animate-pulse h-48"
+            />
           ))}
         </div>
       </div>
@@ -59,7 +59,10 @@ export default function DecadesPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <p className="text-sm text-zinc-400 mb-1">Your dominant era</p>
-            <h2 className="text-4xl font-bold" style={{ color: DECADE_COLORS[dominant.decade] || "#22c55e" }}>
+            <h2
+              className="text-4xl font-bold"
+              style={{ color: DECADE_COLORS[dominant.decade] || "#22c55e" }}
+            >
               {dominant.decade}
             </h2>
             <p className="text-zinc-300 mt-2 text-lg">{dominant.insight}</p>
@@ -119,9 +122,7 @@ export default function DecadesPage() {
                   {d.top_tracks.map((t, i) => (
                     <div key={`${t.name}-${i}`} className="flex items-center gap-2 text-sm">
                       <span className="text-zinc-600 font-mono text-xs w-4">{i + 1}</span>
-                      {t.image_url && (
-                        <img src={t.image_url} alt="" className="w-5 h-5 rounded" />
-                      )}
+                      {t.image_url && <img src={t.image_url} alt="" className="w-5 h-5 rounded" />}
                       <span className="text-zinc-300 truncate">{t.name}</span>
                     </div>
                   ))}

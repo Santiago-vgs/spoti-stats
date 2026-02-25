@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 
 from src.config import settings
-from src.spotify.auth import exchange_code, get_auth_url, is_authenticated
+from src.spotify.auth import get_auth_url, is_authenticated
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

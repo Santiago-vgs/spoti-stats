@@ -48,11 +48,7 @@ export default function DecadeChart({ data }: Props) {
           axisLine={{ stroke: "#27272a" }}
           tickLine={false}
         />
-        <YAxis
-          tick={{ fontSize: 11, fill: "#71717a" }}
-          axisLine={false}
-          tickLine={false}
-        />
+        <YAxis tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
         <Tooltip
           contentStyle={CHART_TOOLTIP}
           formatter={(value: number) => [`${value} plays`, "Plays"]}

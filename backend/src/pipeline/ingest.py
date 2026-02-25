@@ -16,13 +16,17 @@ def ingest_recently_played(wrapper: SpotifyWrapper, after_ms: int | None = None)
 
 def ingest_top_tracks(wrapper: SpotifyWrapper) -> dict[str, list[dict]]:
     with ThreadPoolExecutor(max_workers=3) as pool:
-        futures = {tr: pool.submit(wrapper.get_top_tracks, time_range=tr, limit=50) for tr in TIME_RANGES}
+        futures = {
+            tr: pool.submit(wrapper.get_top_tracks, time_range=tr, limit=50) for tr in TIME_RANGES
+        }
         return {tr: f.result() for tr, f in futures.items()}
 
 
 def ingest_top_artists(wrapper: SpotifyWrapper) -> dict[str, list[dict]]:
     with ThreadPoolExecutor(max_workers=3) as pool:
-        futures = {tr: pool.submit(wrapper.get_top_artists, time_range=tr, limit=50) for tr in TIME_RANGES}
+        futures = {
+            tr: pool.submit(wrapper.get_top_artists, time_range=tr, limit=50) for tr in TIME_RANGES
+        }
         return {tr: f.result() for tr, f in futures.items()}
 
 

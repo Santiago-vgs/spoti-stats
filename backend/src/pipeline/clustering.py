@@ -9,8 +9,13 @@ from src.db.models import AudioFeature
 from src.pipeline.load import update_cluster_assignments
 
 FEATURE_COLS = [
-    "danceability", "energy", "valence", "acousticness",
-    "instrumentalness", "speechiness", "liveness",
+    "danceability",
+    "energy",
+    "valence",
+    "acousticness",
+    "instrumentalness",
+    "speechiness",
+    "liveness",
 ]
 
 CLUSTER_LABELS = {
@@ -23,11 +28,7 @@ N_CLUSTERS = 6
 
 def run_clustering(session: Session) -> dict:
     """Run K-means clustering on audio features. Returns cluster stats."""
-    rows = (
-        session.query(AudioFeature)
-        .filter(AudioFeature.danceability.isnot(None))
-        .all()
-    )
+    rows = session.query(AudioFeature).filter(AudioFeature.danceability.isnot(None)).all()
 
     if len(rows) < N_CLUSTERS:
         print(f"  Not enough tracks with audio features ({len(rows)}) for clustering.")
@@ -42,7 +43,7 @@ def run_clustering(session: Session) -> dict:
     kmeans = KMeans(n_clusters=N_CLUSTERS, random_state=42, n_init=10)
     labels = kmeans.fit_predict(X_scaled)
 
-    assignments = dict(zip(track_ids, [int(l) for l in labels]))
+    assignments = dict(zip(track_ids, [int(label) for label in labels]))
     update_cluster_assignments(session, assignments)
 
     # Compute cluster profiles (mean of original features per cluster)

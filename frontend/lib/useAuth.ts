@@ -6,7 +6,7 @@ export function useAuth() {
   const { data, error, isLoading, mutate } = useSWR<AuthStatus>(
     "/auth/status",
     fetcher<AuthStatus>("/auth/status"),
-    { revalidateOnFocus: true }
+    { revalidateOnFocus: true },
   );
 
   return {

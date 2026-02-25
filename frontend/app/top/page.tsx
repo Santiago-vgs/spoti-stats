@@ -13,18 +13,15 @@ export default function TopPage() {
 
   const { data: topTracks } = useSWR<TopItem[]>(
     `/stats/top-tracks?time_range=${timeRange}&limit=20`,
-    fetcher(`/stats/top-tracks?time_range=${timeRange}&limit=20`)
+    fetcher(`/stats/top-tracks?time_range=${timeRange}&limit=20`),
   );
 
   const { data: topArtists } = useSWR<TopItem[]>(
     `/stats/top-artists?time_range=${timeRange}&limit=20`,
-    fetcher(`/stats/top-artists?time_range=${timeRange}&limit=20`)
+    fetcher(`/stats/top-artists?time_range=${timeRange}&limit=20`),
   );
 
-  const { data: genres } = useSWR<GenreCount[]>(
-    "/stats/genres",
-    fetcher("/stats/genres")
-  );
+  const { data: genres } = useSWR<GenreCount[]>("/stats/genres", fetcher("/stats/genres"));
 
   return (
     <div className="space-y-6">

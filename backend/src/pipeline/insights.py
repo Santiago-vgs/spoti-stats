@@ -24,7 +24,8 @@ def _build_context(session: Session) -> dict:
     unique_artists = (
         session.query(func.count(func.distinct(Track.artist_name)))
         .join(ListeningHistory, ListeningHistory.track_id == Track.id)
-        .scalar() or 0
+        .scalar()
+        or 0
     )
 
     # Top 5 artists by play count
@@ -73,9 +74,7 @@ def _build_context(session: Session) -> dict:
         "avg_valence": round(avg_features[1], 3) if avg_features[1] else None,
         "avg_danceability": round(avg_features[2], 3) if avg_features[2] else None,
         "avg_acousticness": round(avg_features[3], 3) if avg_features[3] else None,
-        "recent_daily_plays": [
-            {"date": d.date, "plays": d.total_plays} for d in recent_days
-        ],
+        "recent_daily_plays": [{"date": d.date, "plays": d.total_plays} for d in recent_days],
     }
 
 
@@ -84,6 +83,7 @@ def generate_insights(session: Session) -> list[str]:
     context = _build_context(session)
 
     from src.config import settings
+
     api_key = settings.anthropic_api_key
     if api_key:
         return _generate_with_llm(session, context, api_key)
@@ -99,12 +99,12 @@ def _generate_with_llm(session: Session, context: dict, api_key: str) -> list[st
     prompt = f"""You are a music analytics assistant analyzing a user's Spotify listening data.
 
 Here is their data:
-- Total plays: {context['total_plays']}
-- Unique tracks: {context['unique_tracks']}, Unique artists: {context['unique_artists']}
-- Top artists: {json.dumps(context['top_artists'])}
-- Top tracks: {json.dumps(context['top_tracks'])}
-- Average audio features: energy={context['avg_energy']}, valence={context['avg_valence']}, danceability={context['avg_danceability']}, acousticness={context['avg_acousticness']}
-- Recent daily play counts: {json.dumps(context['recent_daily_plays'])}
+- Total plays: {context["total_plays"]}
+- Unique tracks: {context["unique_tracks"]}, Unique artists: {context["unique_artists"]}
+- Top artists: {json.dumps(context["top_artists"])}
+- Top tracks: {json.dumps(context["top_tracks"])}
+- Average audio features: energy={context["avg_energy"]}, valence={context["avg_valence"]}, danceability={context["avg_danceability"]}, acousticness={context["avg_acousticness"]}
+- Recent daily play counts: {json.dumps(context["recent_daily_plays"])}
 
 Generate exactly 3 short, specific, personalized insights about their listening habits.
 Each insight should be 1-2 sentences, conversational, and interesting.
@@ -124,12 +124,14 @@ Return them as a JSON array of 3 strings. No markdown, just the JSON array."""
 
     # Store in DB
     for text in insights:
-        session.add(Insight(
-            insight_type="weekly",
-            content=text,
-            metadata_json=json.dumps(context),
-            generated_at=datetime.utcnow(),
-        ))
+        session.add(
+            Insight(
+                insight_type="weekly",
+                content=text,
+                metadata_json=json.dumps(context),
+                generated_at=datetime.utcnow(),
+            )
+        )
     session.commit()
     print(f"  Generated {len(insights)} LLM insights.")
     return insights
@@ -154,20 +156,20 @@ def _generate_rule_based(session: Session, context: dict) -> list[str]:
 
     if context["avg_energy"] is not None:
         energy = "high-energy" if context["avg_energy"] > 0.6 else "chill"
-        insights.append(
-            f"You tend toward {energy} tracks (avg energy: {context['avg_energy']})."
-        )
+        insights.append(f"You tend toward {energy} tracks (avg energy: {context['avg_energy']}).")
 
     if not insights:
         insights.append("Sync more data to unlock personalized insights!")
 
     for text in insights:
-        session.add(Insight(
-            insight_type="weekly",
-            content=text,
-            metadata_json=json.dumps(context),
-            generated_at=datetime.utcnow(),
-        ))
+        session.add(
+            Insight(
+                insight_type="weekly",
+                content=text,
+                metadata_json=json.dumps(context),
+                generated_at=datetime.utcnow(),
+            )
+        )
     session.commit()
     print(f"  Generated {len(insights)} rule-based insights.")
     return insights

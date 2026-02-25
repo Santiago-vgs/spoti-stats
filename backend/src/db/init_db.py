@@ -1,5 +1,5 @@
-from src.db.database import Base, engine
 from src.db import models  # noqa: F401 — registers all models
+from src.db.database import Base, engine
 
 
 def create_tables():

@@ -34,9 +34,7 @@ def get_overview(db: Session = Depends(get_db)):
         return cached
 
     total_plays = db.query(func.count(ListeningHistory.id)).scalar() or 0
-    unique_tracks = (
-        db.query(func.count(func.distinct(ListeningHistory.track_id))).scalar() or 0
-    )
+    unique_tracks = db.query(func.count(func.distinct(ListeningHistory.track_id))).scalar() or 0
     unique_artists = (
         db.query(func.count(func.distinct(Track.artist_name)))
         .join(ListeningHistory, ListeningHistory.track_id == Track.id)

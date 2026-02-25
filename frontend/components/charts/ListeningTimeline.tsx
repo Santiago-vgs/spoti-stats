@@ -1,6 +1,14 @@
 "use client";
 
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { TimelinePoint } from "@/lib/types";
 import { CHART_TOOLTIP } from "@/lib/chartTheme";
 
@@ -23,7 +31,9 @@ export default function ListeningTimeline({ data }: Props) {
           dataKey="date"
           stroke="#71717a"
           tick={{ fontSize: 12 }}
-          tickFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          tickFormatter={(v) =>
+            new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+          }
           interval="preserveStartEnd"
         />
         <YAxis stroke="#71717a" tick={{ fontSize: 12 }} />

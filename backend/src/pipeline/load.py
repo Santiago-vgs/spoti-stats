@@ -80,23 +80,27 @@ def load_listening_history(session: Session, items: list[dict]):
         track_rows.append(track_data)
 
         for raw_artist in artists_raw:
-            artist_stubs.append({
-                "id": raw_artist["id"],
-                "name": raw_artist["name"],
-                "genres": "[]",
-                "popularity": None,
-                "image_url": None,
-                "spotify_url": raw_artist.get("external_urls", {}).get("spotify"),
-            })
+            artist_stubs.append(
+                {
+                    "id": raw_artist["id"],
+                    "name": raw_artist["name"],
+                    "genres": "[]",
+                    "popularity": None,
+                    "image_url": None,
+                    "spotify_url": raw_artist.get("external_urls", {}).get("spotify"),
+                }
+            )
 
         for aid in artist_ids:
             artist_links.append({"track_id": track_data["id"], "artist_id": aid})
 
-        history_rows.append({
-            "track_id": track_data["id"],
-            "played_at": item["played_at"],
-            "context_type": item.get("context_type"),
-        })
+        history_rows.append(
+            {
+                "track_id": track_data["id"],
+                "played_at": item["played_at"],
+                "context_type": item.get("context_type"),
+            }
+        )
 
     _bulk_upsert_tracks(session, track_rows)
     # Only insert artist stubs if they don't already exist (don't overwrite full artist data)
@@ -164,6 +168,7 @@ def load_playlists(session: Session, playlists: list[dict], playlist_tracks: dic
             track_raw = item.pop("_track_raw", None)
             if track_raw:
                 from src.pipeline.transform import transform_track
+
                 track_data = transform_track(track_raw)
                 track_data.pop("_artist_ids", None)
                 track_data.pop("_artists_raw", None)
@@ -225,9 +230,7 @@ def load_lastfm_tags(session: Session, tags: list[dict]):
 def update_cluster_assignments(session: Session, assignments: dict[str, int]):
     """Update cluster_id on AudioFeature rows."""
     for track_id, cluster_id in assignments.items():
-        session.query(AudioFeature).filter_by(track_id=track_id).update(
-            {"cluster_id": cluster_id}
-        )
+        session.query(AudioFeature).filter_by(track_id=track_id).update({"cluster_id": cluster_id})
     session.commit()
 
 
@@ -265,16 +268,18 @@ def rebuild_daily_summaries(session: Session):
     summaries = []
     for row in rows:
         audio = audio_map.get(row.date)
-        summaries.append({
-            "date": row.date,
-            "total_plays": row.total_plays,
-            "total_duration_ms": row.total_duration_ms or 0,
-            "unique_tracks": row.unique_tracks,
-            "unique_artists": row.unique_artists,
-            "avg_energy": audio.avg_energy if audio else None,
-            "avg_valence": audio.avg_valence if audio else None,
-            "avg_danceability": audio.avg_danceability if audio else None,
-        })
+        summaries.append(
+            {
+                "date": row.date,
+                "total_plays": row.total_plays,
+                "total_duration_ms": row.total_duration_ms or 0,
+                "unique_tracks": row.unique_tracks,
+                "unique_artists": row.unique_artists,
+                "avg_energy": audio.avg_energy if audio else None,
+                "avg_valence": audio.avg_valence if audio else None,
+                "avg_danceability": audio.avg_danceability if audio else None,
+            }
+        )
 
     if summaries:
         session.execute(DailyListeningSummary.__table__.insert().values(summaries))

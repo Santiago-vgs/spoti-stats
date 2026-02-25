@@ -13,7 +13,8 @@ export default function HistoryPage() {
 
   const { data, isLoading } = useSWR<HistoryItem[]>(
     `/history?limit=${limit}&offset=${page * limit}`,
-    () => apiFetch<HistoryItem[]>(`/history`, { limit: String(limit), offset: String(page * limit) })
+    () =>
+      apiFetch<HistoryItem[]>(`/history`, { limit: String(limit), offset: String(page * limit) }),
   );
 
   return (
@@ -35,11 +36,7 @@ export default function HistoryPage() {
                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-800/50 transition-colors"
               >
                 {item.track?.album_image_url && (
-                  <img
-                    src={item.track.album_image_url}
-                    alt=""
-                    className="w-10 h-10 rounded"
-                  />
+                  <img src={item.track.album_image_url} alt="" className="w-10 h-10 rounded" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-medium truncate">
@@ -57,7 +54,8 @@ export default function HistoryPage() {
           </div>
         ) : (
           <p className="text-zinc-400">
-            No history data yet. Click <strong className="text-green-500">Sync Data</strong> to get started.
+            No history data yet. Click <strong className="text-green-500">Sync Data</strong> to get
+            started.
           </p>
         )}
       </Card>

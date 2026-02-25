@@ -43,7 +43,7 @@ class SpotifyWrapper:
                 results.extend(f for f in features if f is not None)
             except SpotifyException as e:
                 if e.http_status == 403:
-                    print(f"  Audio features API returned 403 (likely deprecated). Skipping.")
+                    print("  Audio features API returned 403 (likely deprecated). Skipping.")
                     return results
                 raise
         return results

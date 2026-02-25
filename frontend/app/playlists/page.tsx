@@ -10,14 +10,11 @@ import { ListItemSkeleton } from "@/components/ui/Skeleton";
 export default function PlaylistsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: playlists } = useSWR<Playlist[]>(
-    "/playlists",
-    fetcher("/playlists")
-  );
+  const { data: playlists } = useSWR<Playlist[]>("/playlists", fetcher("/playlists"));
 
   const { data: tracks, isLoading: tracksLoading } = useSWR<PlaylistTrack[]>(
     selectedId ? `/playlists/${selectedId}/tracks` : null,
-    (key: string) => apiFetch<PlaylistTrack[]>(key)
+    (key: string) => apiFetch<PlaylistTrack[]>(key),
   );
 
   return (
@@ -27,7 +24,8 @@ export default function PlaylistsPage() {
       {!playlists || playlists.length === 0 ? (
         <Card>
           <p className="text-zinc-400">
-            No playlists yet. Click <strong className="text-green-500">Sync Data</strong> in the navbar to load them.
+            No playlists yet. Click <strong className="text-green-500">Sync Data</strong> in the
+            navbar to load them.
           </p>
         </Card>
       ) : (
@@ -45,14 +43,10 @@ export default function PlaylistsPage() {
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  {pl.image_url && (
-                    <img src={pl.image_url} alt="" className="w-12 h-12 rounded" />
-                  )}
+                  {pl.image_url && <img src={pl.image_url} alt="" className="w-12 h-12 rounded" />}
                   <div className="min-w-0">
                     <p className="font-medium truncate">{pl.name}</p>
-                    <p className="text-sm text-zinc-400">
-                      {pl.total_tracks} tracks
-                    </p>
+                    <p className="text-sm text-zinc-400">{pl.total_tracks} tracks</p>
                   </div>
                 </div>
               </button>
@@ -82,19 +76,11 @@ export default function PlaylistsPage() {
                           {(pt.position ?? i) + 1}
                         </span>
                         {pt.track?.album_image_url && (
-                          <img
-                            src={pt.track.album_image_url}
-                            alt=""
-                            className="w-8 h-8 rounded"
-                          />
+                          <img src={pt.track.album_image_url} alt="" className="w-8 h-8 rounded" />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="text-white truncate">
-                            {pt.track?.name || pt.track_id}
-                          </p>
-                          <p className="text-sm text-zinc-400 truncate">
-                            {pt.track?.artist_name}
-                          </p>
+                          <p className="text-white truncate">{pt.track?.name || pt.track_id}</p>
+                          <p className="text-sm text-zinc-400 truncate">{pt.track?.artist_name}</p>
                         </div>
                       </div>
                     ))}

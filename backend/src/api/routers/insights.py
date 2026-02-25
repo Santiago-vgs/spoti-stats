@@ -12,12 +12,7 @@ def get_insights(
     limit: int = Query(5, ge=1, le=20),
     db: Session = Depends(get_db),
 ):
-    rows = (
-        db.query(Insight)
-        .order_by(Insight.generated_at.desc())
-        .limit(limit)
-        .all()
-    )
+    rows = db.query(Insight).order_by(Insight.generated_at.desc()).limit(limit).all()
     return [
         {
             "id": r.id,

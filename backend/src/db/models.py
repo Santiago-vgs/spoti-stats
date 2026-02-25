@@ -89,7 +89,10 @@ class TopItem(Base):
 
     __table_args__ = (
         UniqueConstraint(
-            "item_type", "item_id", "time_range", "snapshot_date",
+            "item_type",
+            "item_id",
+            "time_range",
+            "snapshot_date",
             name="uq_top_item_snapshot",
         ),
         Index("ix_top_item_query", "item_type", "time_range", "snapshot_date", "rank"),
@@ -182,9 +185,7 @@ class HourlyActivity(Base):
     hour = Column(Integer, nullable=False)  # 0-23
     play_count = Column(Integer, default=0)
 
-    __table_args__ = (
-        UniqueConstraint("day_of_week", "hour", name="uq_hourly_activity"),
-    )
+    __table_args__ = (UniqueConstraint("day_of_week", "hour", name="uq_hourly_activity"),)
 
 
 class LastfmTrackTag(Base):

@@ -30,10 +30,7 @@ export default function ListeningHeatmap({ data }: Props) {
         <div className="flex items-center mb-1">
           <div className="w-10" />
           {HOURS.map((h) => (
-            <div
-              key={h}
-              className="flex-1 text-center text-[10px] text-zinc-500"
-            >
+            <div key={h} className="flex-1 text-center text-[10px] text-zinc-500">
               {h % 6 === 0 ? `${h}:00` : ""}
             </div>
           ))}
@@ -42,9 +39,7 @@ export default function ListeningHeatmap({ data }: Props) {
         {/* Grid */}
         {DAYS.map((day, dayIdx) => (
           <div key={day} className="flex items-center gap-0.5 mb-0.5">
-            <div className="w-10 text-xs text-zinc-400 text-right pr-2">
-              {day}
-            </div>
+            <div className="w-10 text-xs text-zinc-400 text-right pr-2">{day}</div>
             {HOURS.map((hour) => {
               const count = lookup.get(`${dayIdx}-${hour}`) || 0;
               return (

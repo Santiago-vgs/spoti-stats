@@ -61,7 +61,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-zinc-900 border-b border-zinc-800" role="navigation" aria-label="Main navigation">
+    <nav
+      className="bg-zinc-900 border-b border-zinc-800"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="text-xl font-bold text-green-500">
@@ -77,9 +81,19 @@ export default function Navbar() {
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -130,7 +144,10 @@ export default function Navbar() {
               </Link>
             ))}
             <button
-              onClick={() => { setMenuOpen(false); handleSync(); }}
+              onClick={() => {
+                setMenuOpen(false);
+                handleSync();
+              }}
               disabled={syncing}
               className="w-full bg-green-600 hover:bg-green-500 disabled:bg-green-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
             >

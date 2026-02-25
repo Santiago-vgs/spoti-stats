@@ -22,23 +22,23 @@ function formatMs(ms: number): string {
 export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useSWR<OverviewStats>(
     "/stats/overview",
-    fetcher("/stats/overview")
+    fetcher("/stats/overview"),
   );
   const { data: timeline } = useSWR<TimelinePoint[]>(
     "/stats/listening-timeline?days=30",
-    fetcher("/stats/listening-timeline?days=30")
+    fetcher("/stats/listening-timeline?days=30"),
   );
   const { data: topArtists } = useSWR<TopItem[]>(
     "/stats/top-artists?time_range=medium_term&limit=10",
-    fetcher("/stats/top-artists?time_range=medium_term&limit=10")
+    fetcher("/stats/top-artists?time_range=medium_term&limit=10"),
   );
   const { data: moodClusters } = useSWR<MoodCluster[]>(
     "/insights/mood-profile",
-    fetcher("/insights/mood-profile")
+    fetcher("/insights/mood-profile"),
   );
   const { data: heatmap } = useSWR<HeatmapCell[]>(
     "/insights/heatmap",
-    fetcher("/insights/heatmap")
+    fetcher("/insights/heatmap"),
   );
 
   if (statsLoading) {
@@ -54,9 +54,8 @@ export default function Dashboard() {
           <div className="text-5xl">🎧</div>
           <h1 className="text-3xl font-bold">Welcome to Spoti Stats</h1>
           <p className="text-zinc-400 max-w-md">
-            Click <strong className="text-green-500">Sync Data</strong> in the
-            navbar to pull your Spotify listening history and start exploring
-            your stats.
+            Click <strong className="text-green-500">Sync Data</strong> in the navbar to pull your
+            Spotify listening history and start exploring your stats.
           </p>
         </div>
       </div>
@@ -71,18 +70,9 @@ export default function Dashboard() {
         <StatCard title="Total Plays" value={stats.total_plays} />
         <StatCard title="Unique Tracks" value={stats.unique_tracks} />
         <StatCard title="Unique Artists" value={stats.unique_artists} />
-        <StatCard
-          title="Listening Time"
-          value={formatMs(stats.total_listening_ms)}
-        />
-        <StatCard
-          title="Top Artist"
-          value={stats.top_artist || "—"}
-        />
-        <StatCard
-          title="Top Track"
-          value={stats.top_track || "—"}
-        />
+        <StatCard title="Listening Time" value={formatMs(stats.total_listening_ms)} />
+        <StatCard title="Top Artist" value={stats.top_artist || "—"} />
+        <StatCard title="Top Track" value={stats.top_track || "—"} />
       </div>
 
       {/* AI Insights */}

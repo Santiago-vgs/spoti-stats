@@ -1,12 +1,10 @@
 import argparse
 from datetime import datetime
 
-from sqlalchemy import func
-
+from src.config import settings
 from src.db.database import SessionLocal
 from src.db.init_db import create_tables
-from src.config import settings
-from src.db.models import AudioFeature, LastfmTrackTag, ListeningHistory, PipelineRun, Track
+from src.db.models import AudioFeature, LastfmTrackTag, PipelineRun, Track
 from src.lastfm.client import LastfmClient
 from src.pipeline.ingest import (
     ingest_audio_features,
@@ -125,9 +123,7 @@ def run_pipeline(
                 tracks_raw = raw.pop("_tracks", [])
                 pl_data = transform_playlist(raw)
                 pl_data_list.append(pl_data)
-                pl_tracks[pl_data["id"]] = transform_playlist_tracks(
-                    tracks_raw, pl_data["id"]
-                )
+                pl_tracks[pl_data["id"]] = transform_playlist_tracks(tracks_raw, pl_data["id"])
             load_playlists(session, pl_data_list, pl_tracks)
             rows_ingested += len(pl_data_list)
             print(f"  Loaded {len(pl_data_list)} playlists.")
@@ -139,22 +135,14 @@ def run_pipeline(
             try:
                 lastfm_client = LastfmClient(api_key=settings.lastfm_api_key)
                 # Get tracks that need tags
-                all_tracks = (
-                    session.query(Track.id, Track.name, Track.artist_name)
-                    .all()
-                )
-                existing_tag_ids = {
-                    r[0] for r in session.query(LastfmTrackTag.track_id).all()
-                }
+                all_tracks = session.query(Track.id, Track.name, Track.artist_name).all()
+                existing_tag_ids = {r[0] for r in session.query(LastfmTrackTag.track_id).all()}
                 track_tuples = [(t.id, t.name, t.artist_name) for t in all_tracks]
                 raw_results = ingest_lastfm_tags(lastfm_client, track_tuples, existing_tag_ids)
 
                 if raw_results:
                     # Transform and store tags
-                    tag_rows = [
-                        transform_lastfm_tags(r["track_id"], r["raw"])
-                        for r in raw_results
-                    ]
+                    tag_rows = [transform_lastfm_tags(r["track_id"], r["raw"]) for r in raw_results]
                     load_lastfm_tags(session, tag_rows)
                     print(f"  Stored Last.fm tags for {len(tag_rows)} tracks.")
 
@@ -203,6 +191,7 @@ def run_pipeline(
             print("Running mood clustering...")
             try:
                 from src.pipeline.clustering import run_clustering
+
                 run_clustering(session)
             except Exception as e:
                 print(f"  Clustering skipped: {e}")
@@ -219,6 +208,7 @@ def run_pipeline(
         print("Generating insights...")
         try:
             from src.pipeline.insights import generate_insights
+
             generate_insights(session)
         except Exception as e:
             print(f"  Insight generation skipped: {e}")
@@ -236,6 +226,7 @@ def run_pipeline(
         run.status = "error"
         run.finished_at = datetime.utcnow()
         import traceback
+
         run.error_message = traceback.format_exc()
         session.add(run)
         session.commit()

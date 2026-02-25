@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from sqlalchemy import func
 
 from src.db.database import SessionLocal
-from src.db.models import Artist, ListeningHistory, Track, track_artists
+from src.db.models import ListeningHistory, Track
 
 router = APIRouter(tags=["decades"])
 
@@ -55,11 +55,13 @@ def get_decades():
             return []
 
         # Group by decade
-        decade_data: dict[str, dict] = defaultdict(lambda: {
-            "total_plays": 0,
-            "tracks": [],  # (track_name, artist_name, plays, image_url)
-            "artist_plays": defaultdict(int),
-        })
+        decade_data: dict[str, dict] = defaultdict(
+            lambda: {
+                "total_plays": 0,
+                "tracks": [],  # (track_name, artist_name, plays, image_url)
+                "artist_plays": defaultdict(int),
+            }
+        )
 
         total_plays = 0
         for row in rows:
@@ -91,24 +93,21 @@ def get_decades():
             # Top 5 tracks by plays
             top_tracks = sorted(info["tracks"], key=lambda t: t[2], reverse=True)[:5]
             # Top 5 artists by plays
-            top_artists = sorted(
-                info["artist_plays"].items(), key=lambda a: a[1], reverse=True
-            )[:5]
+            top_artists = sorted(info["artist_plays"].items(), key=lambda a: a[1], reverse=True)[:5]
 
-            result.append({
-                "decade": decade,
-                "total_plays": info["total_plays"],
-                "percentage": round(pct, 1),
-                "insight": _generate_decade_insight(decade, pct),
-                "top_tracks": [
-                    {"name": t[0], "artist_name": t[1], "plays": t[2], "image_url": t[3]}
-                    for t in top_tracks
-                ],
-                "top_artists": [
-                    {"name": a[0], "plays": a[1]}
-                    for a in top_artists
-                ],
-            })
+            result.append(
+                {
+                    "decade": decade,
+                    "total_plays": info["total_plays"],
+                    "percentage": round(pct, 1),
+                    "insight": _generate_decade_insight(decade, pct),
+                    "top_tracks": [
+                        {"name": t[0], "artist_name": t[1], "plays": t[2], "image_url": t[3]}
+                        for t in top_tracks
+                    ],
+                    "top_artists": [{"name": a[0], "plays": a[1]} for a in top_artists],
+                }
+            )
 
         # Sort by total plays descending
         result.sort(key=lambda d: d["total_plays"], reverse=True)

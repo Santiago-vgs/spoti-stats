@@ -5,9 +5,21 @@ import { GenreCount } from "@/lib/types";
 import { CHART_TOOLTIP } from "@/lib/chartTheme";
 
 const COLORS = [
-  "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6",
-  "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#84cc16",
-  "#e879f9", "#fb923c", "#2dd4bf", "#a78bfa", "#fbbf24",
+  "#22c55e",
+  "#3b82f6",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#14b8a6",
+  "#f97316",
+  "#06b6d4",
+  "#84cc16",
+  "#e879f9",
+  "#fb923c",
+  "#2dd4bf",
+  "#a78bfa",
+  "#fbbf24",
 ];
 
 interface Props {

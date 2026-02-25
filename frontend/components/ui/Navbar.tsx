@@ -13,6 +13,7 @@ const links = [
   { href: "/history", label: "History" },
   { href: "/top", label: "Top" },
   { href: "/playlists", label: "Playlists" },
+  { href: "/decades", label: "Decades" },
 ];
 
 export default function Navbar() {

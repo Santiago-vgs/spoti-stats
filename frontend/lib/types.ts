@@ -112,6 +112,27 @@ export interface HeatmapCell {
   play_count: number;
 }
 
+export interface DecadeTopTrack {
+  name: string;
+  artist_name: string;
+  plays: number;
+  image_url: string | null;
+}
+
+export interface DecadeTopArtist {
+  name: string;
+  plays: number;
+}
+
+export interface DecadeStat {
+  decade: string;
+  total_plays: number;
+  percentage: number;
+  insight: string;
+  top_tracks: DecadeTopTrack[];
+  top_artists: DecadeTopArtist[];
+}
+
 export interface DailySummary {
   date: string;
   total_plays: number;

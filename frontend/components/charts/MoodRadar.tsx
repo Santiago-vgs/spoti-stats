@@ -74,6 +74,7 @@ export default function MoodRadar({ data }: Props) {
           </div>
         ))}
       </div>
+      <p className="text-center text-[10px] text-zinc-600 mt-2">Powered by Last.fm tags</p>
     </div>
   );
 }

@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from spotipy.exceptions import SpotifyException
 
+from src.lastfm.client import LastfmClient
 from src.spotify.client import SpotifyWrapper
 
 TIME_RANGES = ["short_term", "medium_term", "long_term"]
@@ -45,3 +46,31 @@ def ingest_playlists(wrapper: SpotifyWrapper) -> list[dict]:
 
 def ingest_audio_features(wrapper: SpotifyWrapper, track_ids: list[str]) -> list[dict]:
     return wrapper.get_audio_features(track_ids)
+
+
+def ingest_lastfm_tags(
+    client: LastfmClient,
+    tracks: list[tuple[str, str, str]],
+    existing_tag_ids: set[str],
+) -> list[dict]:
+    """Fetch Last.fm tags for tracks not yet in lastfm_track_tags.
+
+    Args:
+        client: LastfmClient instance
+        tracks: list of (track_id, track_name, artist_name)
+        existing_tag_ids: set of track_ids already fetched
+
+    Returns list of raw API responses paired with track_id.
+    """
+    results = []
+    for track_id, track_name, artist_name in tracks:
+        if track_id in existing_tag_ids:
+            continue
+        # Use the first artist from comma-separated list
+        artist = artist_name.split(",")[0].strip() if artist_name else ""
+        if not artist or not track_name:
+            continue
+        raw = client.get_top_tags(artist=artist, track=track_name)
+        if raw:
+            results.append({"track_id": track_id, "raw": raw})
+    return results

@@ -50,6 +50,7 @@ class Track(Base):
     popularity = Column(Integer)
     spotify_url = Column(String)
     preview_url = Column(String)
+    release_date = Column(String)  # from album, e.g. "2023-05-12" or "2023"
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     artists = relationship("Artist", secondary=track_artists, back_populates="tracks")
@@ -184,6 +185,16 @@ class HourlyActivity(Base):
     __table_args__ = (
         UniqueConstraint("day_of_week", "hour", name="uq_hourly_activity"),
     )
+
+
+class LastfmTrackTag(Base):
+    __tablename__ = "lastfm_track_tags"
+
+    track_id = Column(String, ForeignKey("tracks.id"), primary_key=True)
+    tags = Column(Text, default="[]")  # JSON array of {name, count}
+    global_listeners = Column(Integer)
+    global_playcount = Column(Integer)
+    fetched_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Insight(Base):

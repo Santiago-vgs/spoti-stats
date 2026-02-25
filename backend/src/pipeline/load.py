@@ -9,6 +9,7 @@ from src.db.models import (
     AudioFeature,
     DailyListeningSummary,
     HourlyActivity,
+    LastfmTrackTag,
     ListeningHistory,
     Playlist,
     PlaylistTrack,
@@ -33,6 +34,7 @@ def _bulk_upsert_tracks(session: Session, tracks: list[dict]):
             "popularity": stmt.excluded.popularity,
             "spotify_url": stmt.excluded.spotify_url,
             "preview_url": stmt.excluded.preview_url,
+            "release_date": stmt.excluded.release_date,
             "updated_at": datetime.utcnow(),
         },
     )
@@ -197,6 +199,23 @@ def load_audio_features(session: Session, features: list[dict]):
             "key": stmt.excluded.key,
             "mode": stmt.excluded.mode,
             "time_signature": stmt.excluded.time_signature,
+        },
+    )
+    session.execute(stmt)
+    session.commit()
+
+
+def load_lastfm_tags(session: Session, tags: list[dict]):
+    if not tags:
+        return
+    stmt = sqlite_insert(LastfmTrackTag.__table__).values(tags)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["track_id"],
+        set_={
+            "tags": stmt.excluded.tags,
+            "global_listeners": stmt.excluded.global_listeners,
+            "global_playcount": stmt.excluded.global_playcount,
+            "fetched_at": datetime.utcnow(),
         },
     )
     session.execute(stmt)

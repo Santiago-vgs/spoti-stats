@@ -5,9 +5,12 @@ from sqlalchemy import func
 
 from src.db.database import SessionLocal
 from src.db.init_db import create_tables
-from src.db.models import AudioFeature, ListeningHistory, PipelineRun, Track
+from src.config import settings
+from src.db.models import AudioFeature, LastfmTrackTag, ListeningHistory, PipelineRun, Track
+from src.lastfm.client import LastfmClient
 from src.pipeline.ingest import (
     ingest_audio_features,
+    ingest_lastfm_tags,
     ingest_playlists,
     ingest_recently_played,
     ingest_top_artists,
@@ -16,6 +19,7 @@ from src.pipeline.ingest import (
 from src.pipeline.load import (
     load_artists,
     load_audio_features,
+    load_lastfm_tags,
     load_listening_history,
     load_playlists,
     load_top_items,
@@ -23,8 +27,10 @@ from src.pipeline.load import (
     rebuild_hourly_activity,
 )
 from src.pipeline.transform import (
+    derive_mood_features_from_tags,
     transform_artist,
     transform_audio_features,
+    transform_lastfm_tags,
     transform_playlist,
     transform_playlist_tracks,
     transform_recently_played,
@@ -126,26 +132,71 @@ def run_pipeline(
             rows_ingested += len(pl_data_list)
             print(f"  Loaded {len(pl_data_list)} playlists.")
 
-        # --- Step 4: Audio features (for tracks missing them) ---
-        print("Fetching audio features...")
-        missing_ids = _get_tracks_missing_features(session)
+        # --- Step 4: Mood data (Last.fm tags preferred, Spotify audio features fallback) ---
         has_audio_features = session.query(AudioFeature).count() > 0
-        if missing_ids:
+        if settings.lastfm_api_key:
+            print("Fetching Last.fm tags for mood data...")
             try:
-                raw_features = ingest_audio_features(wrapper, missing_ids)
-                if raw_features:
-                    transformed_features = transform_audio_features(raw_features)
-                    load_audio_features(session, transformed_features)
-                    rows_ingested += len(transformed_features)
+                lastfm_client = LastfmClient(api_key=settings.lastfm_api_key)
+                # Get tracks that need tags
+                all_tracks = (
+                    session.query(Track.id, Track.name, Track.artist_name)
+                    .all()
+                )
+                existing_tag_ids = {
+                    r[0] for r in session.query(LastfmTrackTag.track_id).all()
+                }
+                track_tuples = [(t.id, t.name, t.artist_name) for t in all_tracks]
+                raw_results = ingest_lastfm_tags(lastfm_client, track_tuples, existing_tag_ids)
+
+                if raw_results:
+                    # Transform and store tags
+                    tag_rows = [
+                        transform_lastfm_tags(r["track_id"], r["raw"])
+                        for r in raw_results
+                    ]
+                    load_lastfm_tags(session, tag_rows)
+                    print(f"  Stored Last.fm tags for {len(tag_rows)} tracks.")
+
+                # Derive mood features from ALL stored tags (not just new ones)
+                all_tags = session.query(LastfmTrackTag).all()
+                mood_rows = []
+                for tag_row in all_tags:
+                    mood = derive_mood_features_from_tags(tag_row.track_id, tag_row.tags)
+                    if mood:
+                        mood_rows.append(mood)
+                if mood_rows:
+                    load_audio_features(session, mood_rows)
                     has_audio_features = True
-                    print(f"  Loaded audio features for {len(transformed_features)} tracks.")
+                    rows_ingested += len(mood_rows)
+                    print(f"  Derived mood features for {len(mood_rows)} tracks from tags.")
                 else:
-                    print("  Audio features API unavailable (deprecated by Spotify). Skipping.")
+                    print("  No mood features could be derived from tags.")
             except Exception as e:
-                print(f"  Audio features failed: {e}. Skipping.")
-        else:
-            has_audio_features = session.query(AudioFeature).count() > 0
-            print("  All tracks already have audio features.")
+                print(f"  Last.fm tag fetching failed: {e}. Trying Spotify fallback.")
+                # Fall through to Spotify fallback below
+                settings.lastfm_api_key = ""  # prevent re-trying
+
+        if not settings.lastfm_api_key:
+            # Fallback: Spotify audio features
+            print("Fetching audio features (Spotify fallback)...")
+            missing_ids = _get_tracks_missing_features(session)
+            if missing_ids:
+                try:
+                    raw_features = ingest_audio_features(wrapper, missing_ids)
+                    if raw_features:
+                        transformed_features = transform_audio_features(raw_features)
+                        load_audio_features(session, transformed_features)
+                        rows_ingested += len(transformed_features)
+                        has_audio_features = True
+                        print(f"  Loaded audio features for {len(transformed_features)} tracks.")
+                    else:
+                        print("  Audio features API unavailable (deprecated by Spotify). Skipping.")
+                except Exception as e:
+                    print(f"  Audio features failed: {e}. Skipping.")
+            else:
+                has_audio_features = session.query(AudioFeature).count() > 0
+                print("  All tracks already have audio features.")
 
         # --- Step 5: Mood clustering ---
         if has_audio_features:
